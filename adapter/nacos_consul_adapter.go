@@ -53,7 +53,7 @@ func NacosClient() {
 		}
 		log.Printf("查看实例数量:%d\n", len(instances))
 		for _, instance := range instances {
-			log.Printf("服务的IP:%s 服务器的端口:%d metaData:%v\n", instance.Ip, instance.Port, instance.Metadata)
+			log.Printf("服务的详情数据信息:%v\n", instance)
 		}
 	}
 
