@@ -18,6 +18,7 @@ func main() {
 	{
 		consulAPI.Use(iris.Compression)
 		consulAPI.Get("/catalog/service/{serviceName}", rest.Consul.FetchServiceByName)
+		consulAPI.Get("/catalog/services", rest.Consul.FetchAllServices)
 	}
 	app.Listen(":18500")
 }
