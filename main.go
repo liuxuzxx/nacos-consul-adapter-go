@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"nacos_consul_adapter/adapter"
-	"nacos_consul_adapter/consul"
+	"nacos_consul_adapter/rest"
 
 	"github.com/kataras/iris/v12"
 )
@@ -17,7 +17,7 @@ func main() {
 	consulAPI := app.Party("/v1")
 	{
 		consulAPI.Use(iris.Compression)
-		consulAPI.Get("/catalog/service/{serviceName}", consul.Consul.FetchServiceByName)
+		consulAPI.Get("/catalog/service/{serviceName}", rest.Consul.FetchServiceByName)
 	}
 	app.Listen(":18500")
 }

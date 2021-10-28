@@ -1,4 +1,4 @@
-package consul
+package rest
 
 import "github.com/kataras/iris/v12"
 
