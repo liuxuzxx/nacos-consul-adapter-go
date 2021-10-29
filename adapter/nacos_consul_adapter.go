@@ -29,32 +29,16 @@ func NacosClient() {
 		log.Fatal(err.Error())
 	}
 
-	//获取Nacos上面所有注册的服务，以及对应的服务实例的信息
-	serviceList, err := namingClient.GetAllServicesInfo(vo.GetAllServiceInfoParam{
-		NameSpace: "public",
-		GroupName: "DEFAULT_GROUP",
-		PageNo:    1,
-		PageSize:  20,
+	instances, err := namingClient.SelectAllInstances(vo.SelectAllInstancesParam{
+		GroupName:   "",
+		ServiceName: "fgmp-service-base",
 	})
-
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-
-	log.Printf("获取的服务数量是:%d\n", serviceList.Count)
-	for _, item := range serviceList.Doms {
-		log.Printf("服务:%s\n", item)
-		instances, err := namingClient.SelectAllInstances(vo.SelectAllInstancesParam{
-			GroupName:   "",
-			ServiceName: item,
-		})
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		log.Printf("查看实例数量:%d\n", len(instances))
-		for _, instance := range instances {
-			log.Printf("服务的详情数据信息:%v\n", instance)
-		}
+	log.Printf("查看实例数量:%d\n", len(instances))
+	for _, instance := range instances {
+		log.Printf("服务的详情数据信息:%v\n", instance)
 	}
 
 	//获取Nacos上面所有的配置信息

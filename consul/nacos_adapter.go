@@ -1,55 +1,73 @@
 package consul
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"time"
+
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/model"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
 var (
-	Adapter = NacosConsulAdapter{}
+	adapter = NacosConsulAdapter{}
 )
 
 type NacosConsulAdapter struct {
+	namingClient naming_client.INamingClient
 }
 
-func (n *NacosConsulAdapter) FetchNacosServices() {
-	url := "http://172.16.16.46:8500/v1/catalog/services"
-	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get(url)
+func (n *NacosConsulAdapter) FetchNacosServices() Services {
+	serviceList, err := n.loadNacosServices()
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 	}
-	defer resp.Body.Close()
+	return ConvertServices(serviceList)
+}
 
-	responseBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	services := Services{}
-	json.Unmarshal(responseBytes, &services)
-	log.Printf("查看获取的数据解析:%v\n", services)
+func (n *NacosConsulAdapter) loadNacosServices() (model.ServiceList, error) {
+	serviceList, err := n.namingClient.GetAllServicesInfo(vo.GetAllServiceInfoParam{
+		NameSpace: "public",
+		GroupName: "DEFAULT_GROUP",
+		PageNo:    1,
+		PageSize:  20,
+	})
+	return serviceList, err
 }
 
 func (n *NacosConsulAdapter) FetchByServiceName(serviceName string) []Instance {
-	url := fmt.Sprintf("http://172.16.16.46:8500/v1/catalog/service/%s", serviceName)
-	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get(url)
+	sources, err := n.namingClient.SelectAllInstances(vo.SelectAllInstancesParam{
+		GroupName:   "",
+		ServiceName: serviceName,
+	})
 	if err != nil {
-		log.Println(err.Error())
+		log.Print(err.Error())
+		return []Instance{}
 	}
-	defer resp.Body.Close()
+	return ConvertInstances(sources)
+}
 
-	responseBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err.Error())
+func InitNacosAdapter() NacosConsulAdapter {
+	serverConfigs := []constant.ServerConfig{
+		{
+			IpAddr: "172.16.1.15",
+			Port:   8848,
+		},
 	}
-	instances := []Instance{}
-	log.Printf("查看获取的原始结果:%s\n", string(responseBytes))
-	json.Unmarshal(responseBytes, &instances)
-	log.Printf("查看获取的数据解析:%v\n", instances)
-	return instances
+	namingClient, err := clients.CreateNamingClient(map[string]interface{}{
+		"serverConfigs": serverConfigs,
+		"clientConfig": constant.ClientConfig{
+			TimeoutMs:           5000,
+			ListenInterval:      10000,
+			NotLoadCacheAtStart: true,
+			LogDir:              "data/nacos/log",
+		},
+	})
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	adapter.namingClient = namingClient
+	return adapter
 }

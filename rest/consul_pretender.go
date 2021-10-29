@@ -9,7 +9,8 @@ import (
 //放置伪装consul的提供http伪装请求的服务接口
 
 var (
-	Consul = ConsulPretenderRest{}
+	Consul  = ConsulPretenderRest{}
+	Adapter = consul.InitNacosAdapter()
 )
 
 type ConsulPretenderRest struct {
@@ -17,11 +18,11 @@ type ConsulPretenderRest struct {
 
 func (c *ConsulPretenderRest) FetchServiceByName(ctx iris.Context) {
 	serviceName := ctx.Params().Get("serviceName")
-	instances := consul.Adapter.FetchByServiceName(serviceName)
+	instances := Adapter.FetchByServiceName(serviceName)
 	ctx.JSON(instances)
 }
 
 func (c *ConsulPretenderRest) FetchAllServices(ctx iris.Context) {
-	consul.Adapter.FetchNacosServices()
-	ctx.JSON("ok，获取成功")
+	services := Adapter.FetchNacosServices()
+	ctx.JSON(services)
 }

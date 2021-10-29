@@ -1,5 +1,7 @@
 package consul
 
+import "github.com/nacos-group/nacos-sdk-go/model"
+
 //
 // 放置consul的service和instance的实体对象信息struct
 //
@@ -25,6 +27,15 @@ package consul
 //
 
 type Services map[string][]string
+
+func ConvertServices(nacosServices model.ServiceList) Services {
+	services := Services{}
+	services["consul"] = []string{}
+	for _, value := range nacosServices.Doms {
+		services[value] = []string{value}
+	}
+	return services
+}
 
 //
 // consul这个地址获取的数据 curl http://localhost:8500/v1/catalog/service/node_exporter
@@ -183,4 +194,62 @@ type Expose struct {
 }
 
 type ServiceConnect struct {
+}
+
+func ConvertInstances(sources []model.Instance) []Instance {
+	targets := []Instance{}
+	for _, source := range sources {
+		targets = append(targets, convertInstance(source))
+	}
+	return targets
+}
+
+func convertInstance(source model.Instance) Instance {
+	target := Instance{}
+	target.ID = source.InstanceId
+	target.Node = "5G"
+	target.Address = "127.0.0.1"
+	target.Datacenter = "dc1"
+	target.TaggedAddresses = TaggedAddresses{
+		Lan:     "127.0.0.1",
+		LanIpv4: "127.0.0.1",
+		Wan:     "127.0.0.1",
+		WanIpv4: "127.0.0.1",
+	}
+	target.NodeMeta = map[string]string{
+		"consul-network-segment": "",
+	}
+	target.ServiceKind = ""
+	target.ServiceID = source.InstanceId
+	target.ServiceName = source.ServiceName
+	target.ServiceTags = []string{source.ServiceName}
+	target.ServiceAddress = source.Ip
+	target.ServiceTaggedAddresses = map[string]Address{
+		"lan_ipv4": {
+			Address: source.Ip,
+			Port:    int32(source.Port),
+		},
+		"wan_ipv4": {
+			Address: source.Ip,
+			Port:    int32(source.Port),
+		},
+	}
+	target.ServiceWeights = ServiceWeights{
+		Passing: int32(source.Weight),
+		Warning: int32(source.Weight),
+	}
+	target.ServiceMeta = source.Metadata
+	target.ServicePort = int32(source.Port)
+	target.ServiceSocketPath = ""
+	target.ServiceEnableTagOverride = false
+	target.ServiceProxy = ServiceProxy{
+		Mode:        "",
+		MeshGateway: MeshGateway{},
+		Expose:      Expose{},
+	}
+	target.ServiceConnect = ServiceConnect{}
+	target.CreateIndex = 1996
+	target.ModifyIndex = 1996
+
+	return target
 }
