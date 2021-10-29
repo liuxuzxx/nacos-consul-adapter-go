@@ -26,3 +26,14 @@ func (c *ConsulPretenderRest) FetchAllServices(ctx iris.Context) {
 	services := Adapter.FetchNacosServices()
 	ctx.JSON(services)
 }
+
+func (c *ConsulPretenderRest) FetchAgentInformation(ctx iris.Context) {
+	agent := Adapter.FetchAgentInformation()
+	ctx.WriteString(agent)
+}
+
+func (c *ConsulPretenderRest) FetchHealth(ctx iris.Context) {
+	serviceName := ctx.Params().Get("serviceName")
+	healths := Adapter.HealthCheck(serviceName)
+	ctx.JSON(healths)
+}

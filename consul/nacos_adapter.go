@@ -1,7 +1,12 @@
 package consul
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
@@ -46,6 +51,30 @@ func (n *NacosConsulAdapter) FetchByServiceName(serviceName string) []Instance {
 		return []Instance{}
 	}
 	return ConvertInstances(sources)
+}
+
+func (n *NacosConsulAdapter) FetchAgentInformation() string {
+	return Agent
+}
+
+func (n *NacosConsulAdapter) HealthCheck(serviceName string) []Health {
+	url := fmt.Sprintf("http://172.16.16.46:8500/v1/health/service/%s", serviceName)
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	defer resp.Body.Close()
+
+	responseBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Printf("查看从consul获取的数据信息:%s\n", string(responseBytes))
+	healths := []Health{}
+	json.Unmarshal(responseBytes, &healths)
+	log.Printf("查看获取的数据解析:%v\n", healths)
+	return healths
 }
 
 func InitNacosAdapter() NacosConsulAdapter {

@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"nacos_consul_adapter/rest"
+	"os"
+	"time"
 
 	"github.com/kataras/iris/v12"
 )
@@ -10,11 +12,30 @@ import (
 func main() {
 	log.Println("初始化启动项目")
 	app := iris.New()
+	f, _ := os.Create("iris.log")
+	app.Logger().SetOutput(f)
+	app.Logger().SetLevelOutput("error", f)
+	app.Use(Logger())
 	consulAPI := app.Party("/v1")
 	{
 		consulAPI.Use(iris.Compression)
 		consulAPI.Get("/catalog/service/{serviceName}", rest.Consul.FetchServiceByName)
 		consulAPI.Get("/catalog/services", rest.Consul.FetchAllServices)
+		consulAPI.Get("/agent/self", rest.Consul.FetchAgentInformation)
+		consulAPI.Get("/health/service/{serviceName}", rest.Consul.FetchHealth)
 	}
 	app.Listen(":18500")
+}
+
+func Logger() iris.Handler {
+	return func(ctx iris.Context) {
+		t := time.Now()
+		log.Printf("监控所有的请求的Path地址信息:%s\n", ctx.Path())
+		ctx.Values().Set("framework", "iris")
+		ctx.Next()
+		latency := time.Since(t)
+		log.Print(latency)
+		status := ctx.GetStatusCode()
+		log.Println(status)
+	}
 }
