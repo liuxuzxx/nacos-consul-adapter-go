@@ -30,8 +30,6 @@ func main() {
 func Logger() iris.Handler {
 	return func(ctx iris.Context) {
 		t := time.Now()
-		log.Printf("监控所有的请求的Path地址信息:%s\n", ctx.Path())
-		ctx.Values().Set("framework", "iris")
 		ctx.Next()
 		latency := time.Since(t)
 		log.Print(latency)

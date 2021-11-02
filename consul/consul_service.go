@@ -1,6 +1,10 @@
 package consul
 
-import "github.com/nacos-group/nacos-sdk-go/model"
+import (
+	"strconv"
+
+	"github.com/nacos-group/nacos-sdk-go/model"
+)
 
 //
 // 放置consul的service和instance的实体对象信息struct
@@ -25,6 +29,13 @@ import "github.com/nacos-group/nacos-sdk-go/model"
 //}
 //
 //
+
+const (
+	node       = "5G"
+	localhost  = "127.0.0.1"
+	datacenter = "dc1"
+	id         = "03f98bf7-f479-83a1-e0f9-1d1ea676f954"
+)
 
 type Services map[string][]string
 
@@ -168,7 +179,7 @@ type TaggedAddresses struct {
 	Lan     string `json:"lan"`
 	LanIpv4 string `json:"lan_ipv4"`
 	Wan     string `json:"wan"`
-	WanIpv4 string `json:"WanIpv4"`
+	WanIpv4 string `json:"wan_ipv4"`
 }
 
 type Address struct {
@@ -207,14 +218,14 @@ func ConvertInstances(sources []model.Instance) []Instance {
 func convertInstance(source model.Instance) Instance {
 	target := Instance{}
 	target.ID = source.InstanceId
-	target.Node = "5G"
-	target.Address = "127.0.0.1"
-	target.Datacenter = "dc1"
+	target.Node = node
+	target.Address = localhost
+	target.Datacenter = datacenter
 	target.TaggedAddresses = TaggedAddresses{
-		Lan:     "127.0.0.1",
-		LanIpv4: "127.0.0.1",
-		Wan:     "127.0.0.1",
-		WanIpv4: "127.0.0.1",
+		Lan:     localhost,
+		LanIpv4: localhost,
+		Wan:     localhost,
+		WanIpv4: localhost,
 	}
 	target.NodeMeta = map[string]string{
 		"consul-network-segment": "",
@@ -833,19 +844,19 @@ type HealthNode struct {
 }
 
 type HealthService struct {
-	ID                string          `json:"ID"`
-	Service           string          `json:"Service"`
-	Tags              []string        `json:"Tags"`
-	Address           string          `json:"Address"`
-	TaggedAddresses   TaggedAddresses `json:"TaggedAddresses"`
-	Meta              string          `json:"Meta"`
-	Port              int32           `json:"Port"`
-	Weights           ServiceWeights  `json:"Weights"`
-	EnableTagOverride bool            `json:"EnableTagOverride"`
-	Proxy             ServiceProxy    `json:"Proxy"`
-	Connect           ServiceConnect  `json:"Connect"`
-	CreateIndex       int32           `json:"CreateIndex"`
-	ModifyIndex       int32           `json:"ModifyIndex"`
+	ID                string             `json:"ID"`
+	Service           string             `json:"Service"`
+	Tags              []string           `json:"Tags"`
+	Address           string             `json:"Address"`
+	TaggedAddresses   map[string]Address `json:"TaggedAddresses"`
+	Meta              map[string]string  `json:"Meta"`
+	Port              int32              `json:"Port"`
+	Weights           ServiceWeights     `json:"Weights"`
+	EnableTagOverride bool               `json:"EnableTagOverride"`
+	Proxy             ServiceProxy       `json:"Proxy"`
+	Connect           ServiceConnect     `json:"Connect"`
+	CreateIndex       int32              `json:"CreateIndex"`
+	ModifyIndex       int32              `json:"ModifyIndex"`
 }
 
 type HealthCheck struct {
@@ -868,4 +879,93 @@ type HealthCheck struct {
 }
 
 type HealthDefinition struct {
+}
+
+func ConvertHealths(sources []model.Instance) []Health {
+	targets := []Health{}
+	for _, source := range sources {
+		targets = append(targets, convertHealth(source))
+	}
+	return targets
+}
+
+func convertHealth(source model.Instance) Health {
+	port := source.Port
+	if value, ok := source.Metadata["management.port"]; ok {
+		temp, _ := strconv.ParseInt(value, 10, 64)
+		port = uint64(temp)
+	}
+	healthNode := HealthNode{
+		ID:         id,
+		Node:       node,
+		Address:    localhost,
+		Datacenter: datacenter,
+		TaggedAddresses: TaggedAddresses{
+			Lan:     localhost,
+			LanIpv4: localhost,
+			Wan:     localhost,
+			WanIpv4: localhost,
+		},
+		Meta:        map[string]string{"consul-network-segment": ""},
+		CreateIndex: 12,
+		ModifyIndex: 12,
+	}
+
+	healthService := HealthService{
+		ID:      source.InstanceId,
+		Service: source.ServiceName,
+		Tags:    []string{source.ServiceName},
+		Address: source.Ip,
+		TaggedAddresses: map[string]Address{
+			"lan_ipv4": {
+				Address: source.Ip,
+				Port:    int32(port),
+			},
+			"wan_ipv4": {
+				Address: source.Ip,
+				Port:    int32(port),
+			},
+		},
+		Port: int32(port),
+		Weights: ServiceWeights{
+			Passing: int32(source.Weight),
+			Warning: int32(source.Weight),
+		},
+		EnableTagOverride: false,
+		Proxy: ServiceProxy{
+			Mode:        "",
+			MeshGateway: MeshGateway{},
+			Expose:      Expose{},
+		},
+		Connect:     ServiceConnect{},
+		CreateIndex: 10796,
+		ModifyIndex: 10796,
+	}
+
+	healthChecks := []HealthCheck{
+		{
+			Node:        node,
+			CheckID:     "serfHealth",
+			Name:        "Serf Health Status",
+			Status:      "passing",
+			Notes:       "",
+			Output:      "Agent alive and reachable",
+			ServiceID:   "",
+			ServiceName: "",
+			ServiceTags: []string{},
+			Type:        "",
+			Interval:    "",
+			Timeout:     "",
+			ExposePort:  0,
+			Definition:  HealthDefinition{},
+			CreateIndex: 12,
+			ModifyIndex: 12,
+		},
+	}
+
+	return Health{
+		Node:    healthNode,
+		Service: healthService,
+		Checks:  healthChecks,
+	}
 }

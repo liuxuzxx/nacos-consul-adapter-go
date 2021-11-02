@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"encoding/json"
+	"log"
 	"nacos_consul_adapter/consul"
 
 	"github.com/kataras/iris/v12"
@@ -35,5 +37,9 @@ func (c *ConsulPretenderRest) FetchAgentInformation(ctx iris.Context) {
 func (c *ConsulPretenderRest) FetchHealth(ctx iris.Context) {
 	serviceName := ctx.Params().Get("serviceName")
 	healths := Adapter.HealthCheck(serviceName)
+
+	bytes, _ := json.Marshal(healths)
+	log.Printf("查看伪装结果：%s\n", string(bytes))
+	ctx.Header("X-Consul-Index", "10796")
 	ctx.JSON(healths)
 }
