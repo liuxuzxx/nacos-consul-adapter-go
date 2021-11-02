@@ -27,6 +27,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kataras/blocks v0.0.4 // indirect
 	github.com/kataras/golog v0.1.7 // indirect
+	github.com/kataras/iris v0.0.2
 	github.com/kataras/iris/v12 v12.2.0-alpha4.0.20211013142751-e2f40ca06e5e // indirect
 	github.com/kataras/pio v0.0.10 // indirect
 	github.com/kataras/sitemap v0.0.5 // indirect
@@ -60,3 +61,5 @@ require (
 	gopkg.in/ini.v1 v1.63.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
+
+require github.com/ryanuber/columnize v2.1.0+incompatible // indirect

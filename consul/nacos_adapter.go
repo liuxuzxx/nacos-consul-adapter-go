@@ -48,6 +48,40 @@ func (n *NacosConsulAdapter) FetchByServiceName(serviceName string) []Instance {
 	return ConvertInstances(sources)
 }
 
+func (n *NacosConsulAdapter) FetchAgentInformation() string {
+	return Agent
+}
+
+func (n *NacosConsulAdapter) HealthCheck(serviceName string) []Health {
+	// url := fmt.Sprintf("http://172.16.16.46:8500/v1/health/service/%s", serviceName)
+	// client := &http.Client{Timeout: 5 * time.Second}
+	// resp, err := client.Get(url)
+	// if err != nil {
+	// 	log.Println(err.Error())
+	// }
+	// defer resp.Body.Close()
+
+	// responseBytes, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	log.Println(err.Error())
+	// }
+	// log.Printf("查看从consul获取的数据信息:%s\n", string(responseBytes))
+	// healths := []Health{}
+	// json.Unmarshal(responseBytes, &healths)
+	// log.Printf("查看获取的数据解析:%v\n", healths)
+	// return healths
+
+	sources, err := n.namingClient.SelectAllInstances(vo.SelectAllInstancesParam{
+		GroupName:   "",
+		ServiceName: serviceName,
+	})
+	if err != nil {
+		log.Print(err.Error())
+		return []Health{}
+	}
+	return ConvertHealths(sources)
+}
+
 func InitNacosAdapter() NacosConsulAdapter {
 	serverConfigs := []constant.ServerConfig{
 		{
