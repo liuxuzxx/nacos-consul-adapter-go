@@ -1,0 +1,11 @@
+nacosConfigs:
+  - ip: 172.16.1.17
+    port: 8848
+  - ip: 172.16.1.15
+    port: 8848
+nameSpaceGroups:
+  - nameSpace: public
+    groupNames:
+      - DEFAULT
+      - DEV
+

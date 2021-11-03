@@ -3,13 +3,14 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"nacos_consul_adapter/config"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 var configCmd = &cobra.Command{
-	Use:   "config.path",
+	Use:   "config",
 	Short: "帮助信息.",
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -18,7 +19,7 @@ var configCmd = &cobra.Command{
 			os.Exit(-1)
 		}
 		fmt.Printf("查看参数信息%s 长度:%d\n", args[0], len(args))
-		//加载配置文件
+		config.InitConfig(args[0])
 	},
 }
 
