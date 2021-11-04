@@ -12,7 +12,7 @@ import (
 
 var (
 	Consul  = ConsulPretenderRest{}
-	Adapter = consul.InitNacosAdapter()
+	Adapter = consul.Adapter
 )
 
 type ConsulPretenderRest struct {

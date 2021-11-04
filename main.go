@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"nacos_consul_adapter/rest"
-	"nacos_consul_adapter/started/cmd"
 	"os"
 	"time"
 
@@ -11,7 +10,8 @@ import (
 )
 
 func main() {
-	cmd.Execute()
+	//cmd.Execute()
+	//log.Println("开始初始化Iris-web服务")
 	app := iris.New()
 	f, _ := os.Create("iris.log")
 	app.Logger().SetOutput(f)

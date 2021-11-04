@@ -2,6 +2,7 @@ package consul
 
 import (
 	"log"
+	"nacos_consul_adapter/config"
 
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
@@ -11,11 +12,12 @@ import (
 )
 
 var (
-	adapter = NacosConsulAdapter{}
+	Adapter = NacosConsulAdapter{}
 )
 
 type NacosConsulAdapter struct {
 	namingClient naming_client.INamingClient
+	config       config.Config
 }
 
 func (n *NacosConsulAdapter) FetchNacosServices() Services {
@@ -64,13 +66,16 @@ func (n *NacosConsulAdapter) HealthCheck(serviceName string) []Health {
 	return ConvertHealths(sources)
 }
 
-func InitNacosAdapter() NacosConsulAdapter {
-	serverConfigs := []constant.ServerConfig{
-		{
-			IpAddr: "172.16.1.15",
-			Port:   8848,
-		},
+func (n *NacosConsulAdapter) initAdapter(config config.Config) {
+	n.config = config
+	serverConfigs := []constant.ServerConfig{}
+	for _, value := range config.NacosConfigs {
+		serverConfigs = append(serverConfigs, constant.ServerConfig{
+			IpAddr: value.IP,
+			Port:   value.Port,
+		})
 	}
+
 	namingClient, err := clients.CreateNamingClient(map[string]interface{}{
 		"serverConfigs": serverConfigs,
 		"clientConfig": constant.ClientConfig{
@@ -80,10 +85,12 @@ func InitNacosAdapter() NacosConsulAdapter {
 			LogDir:              "data/nacos/log",
 		},
 	})
-
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	adapter.namingClient = namingClient
-	return adapter
+	n.namingClient = namingClient
+}
+
+func InitNacosAdapter(config config.Config) {
+	Adapter.initAdapter(config)
 }

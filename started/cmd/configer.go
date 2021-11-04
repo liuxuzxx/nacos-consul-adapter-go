@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"nacos_consul_adapter/config"
+	"nacos_consul_adapter/consul"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -20,6 +21,7 @@ var configCmd = &cobra.Command{
 		}
 		fmt.Printf("查看参数信息%s 长度:%d\n", args[0], len(args))
 		config.InitConfig(args[0])
+		consul.InitNacosAdapter(config.Conf)
 	},
 }
 
