@@ -91,6 +91,7 @@ func (n *NacosConsulAdapter) initAdapter(config config.Config) {
 	n.namingClient = namingClient
 }
 
-func InitNacosAdapter(config config.Config) {
+func InitNacosAdapter(config config.Config) NacosConsulAdapter {
 	Adapter.initAdapter(config)
+	return Adapter
 }

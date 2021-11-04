@@ -10,33 +10,29 @@ import (
 
 //放置伪装consul的提供http伪装请求的服务接口
 
-var (
-	Consul  = ConsulPretenderRest{}
-	Adapter = consul.Adapter
-)
-
 type ConsulPretenderRest struct {
+	Adapter consul.NacosConsulAdapter
 }
 
 func (c *ConsulPretenderRest) FetchServiceByName(ctx iris.Context) {
 	serviceName := ctx.Params().Get("serviceName")
-	instances := Adapter.FetchByServiceName(serviceName)
+	instances := c.Adapter.FetchByServiceName(serviceName)
 	ctx.JSON(instances)
 }
 
 func (c *ConsulPretenderRest) FetchAllServices(ctx iris.Context) {
-	services := Adapter.FetchNacosServices()
+	services := c.Adapter.FetchNacosServices()
 	ctx.JSON(services)
 }
 
 func (c *ConsulPretenderRest) FetchAgentInformation(ctx iris.Context) {
-	agent := Adapter.FetchAgentInformation()
+	agent := c.Adapter.FetchAgentInformation()
 	ctx.WriteString(agent)
 }
 
 func (c *ConsulPretenderRest) FetchHealth(ctx iris.Context) {
 	serviceName := ctx.Params().Get("serviceName")
-	healths := Adapter.HealthCheck(serviceName)
+	healths := c.Adapter.HealthCheck(serviceName)
 
 	bytes, _ := json.Marshal(healths)
 	log.Printf("查看伪装结果：%s\n", string(bytes))
