@@ -38,6 +38,8 @@ func main() {
 func Logger() iris.Handler {
 	return func(ctx iris.Context) {
 		t := time.Now()
+		requestPath := ctx.Path()
+		log.Printf("请求路径信息:主机为:%s 地址为:%s\n", ctx.Request().Host, requestPath)
 		ctx.Next()
 		latency := time.Since(t)
 		log.Print(latency)

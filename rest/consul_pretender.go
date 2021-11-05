@@ -17,16 +17,19 @@ type ConsulPretenderRest struct {
 func (c *ConsulPretenderRest) FetchServiceByName(ctx iris.Context) {
 	serviceName := ctx.Params().Get("serviceName")
 	instances := c.Adapter.FetchByServiceName(serviceName)
+	ctx.Header("X-Consul-Index", "10796")
 	ctx.JSON(instances)
 }
 
 func (c *ConsulPretenderRest) FetchAllServices(ctx iris.Context) {
 	services := c.Adapter.FetchNacosServices()
+	ctx.Header("X-Consul-Index", "10796")
 	ctx.JSON(services)
 }
 
 func (c *ConsulPretenderRest) FetchAgentInformation(ctx iris.Context) {
 	agent := c.Adapter.FetchAgentInformation()
+	ctx.Header("X-Consul-Index", "10796")
 	ctx.WriteString(agent)
 }
 
