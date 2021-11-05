@@ -2,7 +2,10 @@ package main
 
 import (
 	"log"
+	"nacos_consul_adapter/config"
+	"nacos_consul_adapter/consul"
 	"nacos_consul_adapter/rest"
+	"nacos_consul_adapter/started/cmd"
 	"os"
 	"time"
 
@@ -10,7 +13,12 @@ import (
 )
 
 func main() {
-	log.Println("初始化启动项目")
+	cmd.Execute()
+
+	consulRest := rest.ConsulPretenderRest{
+		Adapter: consul.InitNacosAdapter(config.Conf),
+	}
+
 	app := iris.New()
 	f, _ := os.Create("iris.log")
 	app.Logger().SetOutput(f)
@@ -19,10 +27,10 @@ func main() {
 	consulAPI := app.Party("/v1")
 	{
 		consulAPI.Use(iris.Compression)
-		consulAPI.Get("/catalog/service/{serviceName}", rest.Consul.FetchServiceByName)
-		consulAPI.Get("/catalog/services", rest.Consul.FetchAllServices)
-		consulAPI.Get("/agent/self", rest.Consul.FetchAgentInformation)
-		consulAPI.Get("/health/service/{serviceName}", rest.Consul.FetchHealth)
+		consulAPI.Get("/catalog/service/{serviceName}", consulRest.FetchServiceByName)
+		consulAPI.Get("/catalog/services", consulRest.FetchAllServices)
+		consulAPI.Get("/agent/self", consulRest.FetchAgentInformation)
+		consulAPI.Get("/health/service/{serviceName}", consulRest.FetchHealth)
 	}
 	app.Listen(":18500")
 }

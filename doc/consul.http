@@ -1,1 +1,4 @@
 GET http://172.16.16.46:8500/v1/health/service/node_exporter?stale=&wait=120000ms
+
+###获取namesapce命名空间
+GET http://172.16.16.46:8500/v1/namespace
