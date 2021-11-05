@@ -2,6 +2,7 @@ package consul
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/nacos-group/nacos-sdk-go/model"
 )
@@ -217,7 +218,7 @@ func ConvertInstances(sources []model.Instance) []Instance {
 
 func convertInstance(source model.Instance) Instance {
 	target := Instance{}
-	target.ID = source.InstanceId
+	target.ID = id
 	target.Node = node
 	target.Address = localhost
 	target.Datacenter = datacenter
@@ -249,7 +250,7 @@ func convertInstance(source model.Instance) Instance {
 		Passing: int32(source.Weight),
 		Warning: int32(source.Weight),
 	}
-	target.ServiceMeta = source.Metadata
+	target.ServiceMeta = convertNacosServiceMeta(source.Metadata)
 	target.ServicePort = int32(source.Port)
 	target.ServiceSocketPath = ""
 	target.ServiceEnableTagOverride = false
@@ -262,6 +263,14 @@ func convertInstance(source model.Instance) Instance {
 	target.CreateIndex = 1996
 	target.ModifyIndex = 1996
 
+	return target
+}
+
+func convertNacosServiceMeta(source map[string]string) map[string]string {
+	target := make(map[string]string, len(source))
+	for key, value := range source {
+		target[strings.ReplaceAll(key, ".", "_")] = value
+	}
 	return target
 }
 
@@ -926,6 +935,7 @@ func convertHealth(source model.Instance) Health {
 				Port:    int32(port),
 			},
 		},
+		Meta: convertNacosServiceMeta(source.Metadata),
 		Port: int32(port),
 		Weights: ServiceWeights{
 			Passing: int32(source.Weight),
