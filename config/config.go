@@ -9,8 +9,13 @@ import (
 )
 
 type Config struct {
+	Server          Server
 	NacosConfigs    []NacosConfig
 	NameSpaceGroups []NameSpaceGroup
+}
+
+type Server struct {
+	Port uint64
 }
 
 type NacosConfig struct {

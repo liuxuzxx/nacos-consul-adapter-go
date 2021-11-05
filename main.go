@@ -7,6 +7,7 @@ import (
 	"nacos_consul_adapter/rest"
 	"nacos_consul_adapter/started/cmd"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/kataras/iris/v12"
@@ -32,7 +33,7 @@ func main() {
 		consulAPI.Get("/agent/self", consulRest.FetchAgentInformation)
 		consulAPI.Get("/health/service/{serviceName}", consulRest.FetchHealth)
 	}
-	app.Listen(":18500")
+	app.Listen(":" + strconv.Itoa(int(config.Conf.Server.Port)))
 }
 
 func Logger() iris.Handler {
