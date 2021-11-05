@@ -19,7 +19,6 @@ func main() {
 		Adapter: consul.InitNacosAdapter(config.Conf),
 	}
 
-	log.Println("开始初始化Iris-web服务")
 	app := iris.New()
 	f, _ := os.Create("iris.log")
 	app.Logger().SetOutput(f)
