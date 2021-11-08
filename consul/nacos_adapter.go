@@ -29,11 +29,12 @@ func (n *NacosConsulAdapter) FetchNacosServices() Services {
 }
 
 func (n *NacosConsulAdapter) loadNacosServices() (model.ServiceList, error) {
+	nameSpaceGroup := n.config.NameSpaceGroup
 	serviceList, err := n.namingClient.GetAllServicesInfo(vo.GetAllServiceInfoParam{
-		NameSpace: "public",
-		GroupName: "DEFAULT_GROUP",
+		NameSpace: nameSpaceGroup.NameSpace,
+		GroupName: nameSpaceGroup.GroupName,
 		PageNo:    1,
-		PageSize:  20,
+		PageSize:  200,
 	})
 	return serviceList, err
 }

@@ -9,9 +9,9 @@ import (
 )
 
 type Config struct {
-	Server          Server
-	NacosConfigs    []NacosConfig
-	NameSpaceGroups []NameSpaceGroup
+	Server         Server
+	NacosConfigs   []NacosConfig
+	NameSpaceGroup NameSpaceGroup
 }
 
 type Server struct {
@@ -24,8 +24,8 @@ type NacosConfig struct {
 }
 
 type NameSpaceGroup struct {
-	NameSpace  string
-	GroupNames []string
+	NameSpace string
+	GroupName string
 }
 
 var Conf Config
