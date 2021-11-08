@@ -58,3 +58,24 @@ scrape_configs:
 ```
 
 ## Prometheus修改同上
+
+# 备注
+## Nacos添加Metadata的处理
+```java
+//下面这段代码可以朝向Nacos添加如下属性：
+//log.path:本服务的日志路径
+//startup.time:服务启动时间
+//注意：nacos-consul-adapter-go会替换所有Metadata当中的 . 为下划线，所以最后的结果就是:log_path startup_time 
+//之所以使用 . 是为了迎合nacos的习惯，但是使用下划线是为了迎合prometheus标签的规范,注意不要有大写
+@Bean
+public NacosDiscoveryProperties nacosProperties() {
+    NacosDiscoveryProperties nacosDiscoveryProperties = new NacosDiscoveryProperties();
+    Map<String, String> metadata = nacosDiscoveryProperties.getMetadata();
+    metadata.put("startup.time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        .format(new Date()));
+    String logPath = System.getProperty("user.dir") + "/logs/*";
+    metadata.put("log.path", logPath);
+    log.info("Register Nacos Metadata information is:{}!", JSON.toJSONString(metadata));
+    return nacosDiscoveryProperties;
+}
+```
