@@ -2,8 +2,9 @@ package rest
 
 import (
 	"encoding/json"
-	"log"
 	"nacos_consul_adapter/consul"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/kataras/iris/v12"
 )

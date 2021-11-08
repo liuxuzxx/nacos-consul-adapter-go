@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"nacos_consul_adapter/config"
 	"nacos_consul_adapter/consul"
 	"nacos_consul_adapter/rest"
@@ -9,6 +8,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/kataras/iris/v12"
 )
