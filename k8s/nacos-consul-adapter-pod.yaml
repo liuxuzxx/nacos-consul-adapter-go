@@ -12,7 +12,8 @@ spec:
     - name: nacos-consul-adapter
       image: harbor.5g.xuanwu.com:7443/dev/nacos-consul-adapter:v1.0.0
       ports:
-        - containerPort: 80
+        - containerPort: 18501
+          hostPort: 18081
       resources:
         limits:
           memory: 50Mi
