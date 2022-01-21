@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nacos-consul-adapter-deployment
+  namespace: study
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nacos-consul-adapter-deployment
+  template:
+    metadata:
+      labels:
+        app: nacos-consul-adapter-deployment
+    spec:
+      containers:
+        - name: nacos-consul-adapter
+          image: harbor.5g.xuanwu.com:7443/dev/nacos-consul-adapter:v1.0.0
+          ports:
+            - containerPort: 18501
+          resources:
+            limits:
+              memory: 50Mi
+              cpu: 5M
+            requests:
+              memory: 10Mi
+              cpu: 1M
+      nodeSelector:
+        zone: nansha
