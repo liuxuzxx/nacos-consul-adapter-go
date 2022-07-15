@@ -21,9 +21,9 @@ nacosConfigs:#Nacos集群配置，可以配置多个Nacos节点信息
     port: 8848
   - ip: 172.16.1.17 #集群当中的第二台配置信息
     port: 8848
-nameSpaceGroups: #Nacos的命名空间和组名字(暂时支持一个)
+nameSpaceGroup: #Nacos的命名空间和组名字(暂时支持一个)
   nameSpace: public
-  groupNames: DEFAULT_GROUP
+  groupName: DEFAULT_GROUP
 ```
 
 # Promtail和Promtheus的配置改动
